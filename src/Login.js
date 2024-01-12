@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
-export default function Login({setToken, setUsername}) {
+export default function Login() {
     const [password, setPassword] = useState('')
     const [passwordshow, setPasswordshow] = useState(true)
     const [error, setError] = useState('')
@@ -24,9 +24,8 @@ export default function Login({setToken, setUsername}) {
             }
         }).then(res => {
             navigate('/home')
-            setToken(res.data.token)
             localStorage.setItem('accesskey',res.data.token)
-            setUsername(inputuser)
+            localStorage.setItem('username',inputuser)
         }).catch(err => {
             if (err.response) {
                 setError('Wrong username/password')

@@ -69,10 +69,10 @@ export default function Home({ token, username }) {
                     <Navbar />
                     <div className='flex flex-col'>
                         <UpperNav username={username}/>
-                        <div className='w-4/5 border-b p-5 h-[35rem] text-sm overflow-y-scroll'>
+                        <div className='w-4/5 border-b p-5 h-[35rem] text-sm p-0 overflow-y-scroll'>
                             <table className='border table-fixed w-full'>
                                 <thead>
-                                    <tr className='border'>
+                                    <tr className='border sticky h-10 -top-1 bg-white border z-10 shadow-md'>
                                         <th className='w-1/4 border'>Product Image</th>
                                         <th className='w-1/4 border'>Product Name</th>
                                         <th className='border'>Price</th>
@@ -82,7 +82,7 @@ export default function Home({ token, username }) {
                                 </thead>
                                 <tbody>
                                     {products.map((product) => (
-                                        <tr className='border hover:bg-sky-100' key={product.id}>
+                                        <tr key={product.id}>
                                             <td>
                                                 <img className='w-1/4 mx-auto' src={product.image} alt={product.title} />
                                             </td>

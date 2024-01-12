@@ -53,6 +53,7 @@ export default function Navbar() {
     const handleLogOut = ()=>{
         window.location.href='/login'
         localStorage.removeItem('accesstoken')
+        localStorage.removeItem('username')
     }
     return (
         <div className='flex flex-col w-1/5 gap-8 py-4 px-8 text-md border-r h-screen'>

@@ -15,7 +15,7 @@ export default function UpperNav({username}) {
                     <FaMagnifyingGlass className='cursor-pointer'/>
                 </form>
             </div>
-            <hr className='mt-3 mb-5' />
+            <hr className='mt-3' />
         </>
     )
 }

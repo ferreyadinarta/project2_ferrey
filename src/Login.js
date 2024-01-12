@@ -25,6 +25,7 @@ export default function Login({setToken, setUsername}) {
         }).then(res => {
             navigate('/home')
             setToken(res.data.token)
+            localStorage.setItem('accesskey',res.data.token)
             setUsername(inputuser)
         }).catch(err => {
             if (err.response) {

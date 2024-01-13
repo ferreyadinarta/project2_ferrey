@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { FaChartLine, FaTableColumns, FaCalendarDays, FaBagShopping, FaCircleQuestion, FaPeopleGroup, FaGear, FaRightFromBracket } from 'react-icons/fa6'
+import { useNavigate } from 'react-router-dom'
 
 export default function Navbar() {
     const [datas, setDatas] = useState(
@@ -40,6 +41,7 @@ export default function Navbar() {
                 selected: false
             }
         ])
+    const navigate = useNavigate()
     const handleSelect = (selectedIndex) => {
         const selectData = datas.map((data, index) => {
             if (index === selectedIndex) {
@@ -51,8 +53,8 @@ export default function Navbar() {
         setDatas(selectData)
     }
     const handleLogOut = ()=>{
-        window.location.href='/login'
-        localStorage.removeItem('accesstoken')
+        navigate('/login')
+        localStorage.removeItem('accesskey')
         localStorage.removeItem('username')
     }
     return (

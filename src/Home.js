@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Navbar from './Navbar'
 import UpperNav from './UpperNav'
-import { useNavigate } from 'react-router-dom'
 import { FaTrash, FaPenToSquare, FaCheck } from 'react-icons/fa6'
 
 export default function Home({ token, username }) {
@@ -11,9 +10,10 @@ export default function Home({ token, username }) {
     const [editName, setEditname] = useState('')
     const [editPrice, setEditprice] = useState('')
     const [editCategory, setEditcategory] = useState('')
-    const [editingproductid, setEditingproductid] = useState()
-    const navigate = useNavigate()
+    const [editingproductid, setEditingproductid] = useState('')
+    const [search, setSearch] = useState('')
 
+    // fetch semua produk
     useEffect(() => {
         axios({
             url: 'https://fakestoreapi.com/products'
@@ -24,6 +24,7 @@ export default function Home({ token, username }) {
             )
     }, [])
 
+    // menghapus produk berdasarkan id tombol delete
     const deleteProduct = (productId) => {
         axios({
             url: `https://fakestoreapi.com/products/${productId}`,
@@ -35,6 +36,7 @@ export default function Home({ token, username }) {
         )
     }
 
+    // set editing state jadi true
     const handleEdit = (index) =>{
         setEdit(true)
         setEditingproductid(index)
@@ -46,7 +48,10 @@ export default function Home({ token, username }) {
         }
     }
 
+    // menyimpan hasil editing
     const handleSave = ()=>{
+        setEdit(false);
+        setEditingproductid(null);
         const updatedProducts = products.map((product) => {
             if (product.id === editingproductid) {
               return { ...product, 
@@ -56,23 +61,26 @@ export default function Home({ token, username }) {
             }
             return product;
           });
-      
           setProducts(updatedProducts);
-          setEdit(false);
-          setEditingproductid(null);
     }
 
-    if (token !== null) {
+    // filter hasil dari search
+    const filteredProduct = products.filter((product)=>
+        product.title.toLowerCase().includes(search.toLowerCase())
+    ); 
+    
+    // mengecek jika punya token baru bisa masuk ke home, jika tidak maka kembali
+    if (token!==null) {
         return (
             <div>
                 <div className='flex flex-row'>
                     <Navbar />
                     <div className='flex flex-col'>
-                        <UpperNav username={username}/>
-                        <div className='w-4/5 border-b p-5 h-[35rem] text-sm p-0 overflow-y-scroll'>
+                        <UpperNav username={username} setSearch={setSearch}/>
+                        <div className='w-4/5 border-b h-[35rem] text-sm p-0 overflow-y-scroll'>
                             <table className='border table-fixed w-full'>
                                 <thead>
-                                    <tr className='border sticky h-10 -top-1 bg-white border z-10 shadow-md'>
+                                    <tr className='border sticky h-10 -top-1 bg-white border shadow-md'>
                                         <th className='w-1/4 border'>Product Image</th>
                                         <th className='w-1/4 border'>Product Name</th>
                                         <th className='border'>Price</th>
@@ -81,8 +89,8 @@ export default function Home({ token, username }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {products.map((product) => (
-                                        <tr key={product.id}>
+                                    {filteredProduct.map((product) => (
+                                        <tr className="hover:bg-amber-100" key={product.id}>
                                             <td>
                                                 <img className='w-1/4 mx-auto' src={product.image} alt={product.title} />
                                             </td>
@@ -151,6 +159,6 @@ export default function Home({ token, username }) {
             </div>
         )
     } else {
-        navigate('/login')
+        window.location.href=('/login')
     }
 }

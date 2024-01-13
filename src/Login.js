@@ -11,6 +11,7 @@ export default function Login() {
     const [inputuser, setInputuser] = useState('')
     const navigate= useNavigate()
 
+    // fetch token jika user terdaftar, dan melakukan navigasi ke home
     const handleLogin = () => {
         setError('')
         setInputuser('')

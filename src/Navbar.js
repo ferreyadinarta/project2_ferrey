@@ -1,88 +1,30 @@
-import React, { useState } from 'react'
-import { FaChartLine, FaTableColumns, FaCalendarDays, FaBagShopping, FaCircleQuestion, FaPeopleGroup, FaGear, FaRightFromBracket } from 'react-icons/fa6'
-import { useNavigate } from 'react-router-dom'
+import React from 'react'
+import { FaMagnifyingGlass, FaPlus } from 'react-icons/fa6'
 
-export default function Navbar() {
-    const [datas, setDatas] = useState(
-        [
-            {
-                navtitle: 'Dashboard',
-                icon: <FaTableColumns />,
-                selected: false
-            },
-            {
-                navtitle: 'Products',
-                icon: <FaBagShopping />,
-                selected: true
-            },
-            {
-                navtitle: 'Analytics',
-                icon: <FaChartLine />,
-                selected: false
-            },
-            {
-                navtitle: 'Schedule',
-                icon: <FaCalendarDays />,
-                selected: false
-            },
-            {
-                navtitle: 'Help',
-                icon: <FaCircleQuestion />,
-                selected: false
-            },
-            {
-                navtitle: 'Community',
-                icon: <FaPeopleGroup />,
-                selected: false
-            },
-            {
-                navtitle: 'Settings',
-                icon: <FaGear />,
-                selected: false
-            }
-        ])
-    const navigate = useNavigate()
-    const handleSelect = (selectedIndex) => {
-        const selectData = datas.map((data, index) => {
-            if (index === selectedIndex) {
-                return { ...data, selected: true }
-            } else {
-                return { ...data, selected: false }
-            }
-        })
-        setDatas(selectData)
-    }
-    const handleLogOut = ()=>{
-        navigate('/login')
-        localStorage.removeItem('accesskey')
-        localStorage.removeItem('username')
-    }
+export default function Navbar({ username, setSearch, title, subtitle, searchVisible, openModal }) {
     return (
-        <div className='flex flex-col w-1/5 gap-8 py-4 px-8 text-md border-r h-screen'>
-            <div className='text-amber-400 font-bold text-2xl text-center'>Logo</div>
-            <hr />
-            {datas.map((data, index) => (
-                <div key={index}>
-                    {data.selected ? (
-                    <button className='bg-amber-400 w-36 rounded-full flex flex-row h-10 gap-4 justify-center  items-center' onClick={() => handleSelect(index)}>
-                        <div className='text-white w-fit'>{data.icon}</div>
-                        <div className='text-white font-bold'>
-                            {data.navtitle}
-                        </div>
-                    </button>
-                    ) : (
-                    <button className='rounded-full w-36 flex flex-row h-10 gap-2 justify-center items-center hover:bg-amber-400 duration-100' onClick={() => handleSelect(index)}>
-                        {data.icon}
-                        <h1>
-                            {data.navtitle}
-                        </h1>
-                    </button>
-                    )}
-                    {index === 3 && <hr className='my-2 gap-0'/>}
+        <>
+            <div className='flex flex-row h-16 w-full items-center w-screen md:w-screen md:gap-8 lg:gap-4 xl:w-screen'>
+                <div className='w-1/6 hidden lg:block sm:w-1/4 md:w-1/12'>
                 </div>
-            ))}
-            <hr/>
-            <button className='flex flex-row h-8 gap-4 bg-black rounded-full justify-center items-center text-white hover:border-amber-500 hover:border-4' onClick={handleLogOut}><FaRightFromBracket/>Log out</button>
-        </div>
+                <div className='flex flex-col pl-5 w-1/4 sm:w-1/3 md:w-1/5 lg:w-1/4 xl:w-1/4'>
+                    <h1 className='font-bold text-md sm:text-xl sm:text-left md:text-2xl md:text-center'>{title}</h1>
+                    <p className='font-light text-sm md:hidden'>{subtitle}</p>
+                </div>
+                <h1 className='font-bold text-xl w-1/3 text-center sm:w-2/3 sm:hidden sm:text-right sm:pr-4 sm:text-[1rem] md:w-2/3 md:text-right md:hidden lg:w-1/4 xl:w-1/5'>Welcome, {username} </h1>
+                {searchVisible ?
+                    <div className='flex items-center lg:mr-4'>
+                        <form className='flex flex-row items-center sm:hidden gap-4'>
+                            <input className='h-8 p-3 shadow-md rounded-full placeholder:text-sm sm:w-[8rem]' type='text' placeholder='Search by name' onChange={(e) => setSearch(e.target.value)} />
+                            <FaMagnifyingGlass className='cursor-pointer' />
+                        </form>
+                        <FaPlus className='cursor-pointer text-xl hover:border-2 hover:border-amber-500 ml-3 md:mr-2 md:text-3xl' onClick={openModal} />
+                    </div>
+                    :
+                    null
+                }
+            </div>
+            <hr className='mt-3' />
+        </>
     )
 }

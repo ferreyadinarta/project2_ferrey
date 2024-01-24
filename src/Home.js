@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import axios from 'axios'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
@@ -8,6 +8,8 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Alert from '@mui/material/Alert';
+import { CircularProgress } from '@mui/material'
+
 
 
 export default function Home({ token, username, searchVisible }) {
@@ -25,18 +27,22 @@ export default function Home({ token, username, searchVisible }) {
     const [addImage, setAddImage] = useState('')
     const [addDescription, setAddDescription] = useState('')
     const [addSuccess, setAddSuccess] = useState('')
-    const [openSidebar, setOpenSidebar] = useState(false)
-
+    const [loading, setLoading] = useState(false)
 
     // fetch semua produk
     useEffect(() => {
-        axios({
-            url: 'https://fakestoreapi.com/products'
-        }).then(res =>
-            setProducts(res.data)
-        ).catch(err =>
-            console.log(err.response)
-        )
+        const fetchdata = async () => {
+            setLoading(true)
+            try {
+                const products = await axios.get('https://fakestoreapi.com/products')
+                setProducts(products.data)
+                setLoading(false)
+            }
+            catch (err) {
+                console.log(err.response)
+            }
+        }
+        fetchdata()
     }, [])
 
     // menghapus produk berdasarkan id tombol delete
@@ -64,7 +70,8 @@ export default function Home({ token, username, searchVisible }) {
     }
 
     // menyimpan hasil editing
-    const handleSave = () => {
+    const handleSave = (e) => {
+        e.stopPropagation()
         setEdit(false);
         setEditingproductid(null);
         const updatedProducts = products.map((product) => {
@@ -115,7 +122,7 @@ export default function Home({ token, username, searchVisible }) {
             category: addCategory
         }
         try {
-            const res = await axios({
+            await axios({
                 url: `https://fakestoreapi.com/products`,
                 method: "POST",
                 body: JSON.stringify(addData)
@@ -136,12 +143,13 @@ export default function Home({ token, username, searchVisible }) {
         }
     }
 
+
     return (
         <div>
             <div className='flex'>
                 <Sidebar />
                 <div className='flex flex-col flex-1'>
-                    <Navbar username={username} setSearch={setSearch} openModal={handleOpen} title="Products" subtitle="Let's see your products" searchVisible={true} addVisible={true} setOpenSidebar={setOpenSidebar} />
+                    <Navbar username={username} setSearch={setSearch} openModal={handleOpen} title="Products" subtitle="Let's see your products" searchVisible={true} addVisible={true} />
                     {addSuccess === true && <Alert severity='success'>Submission Success!</Alert>}
                     {/* Modal */}
                     <div>
@@ -186,93 +194,128 @@ export default function Home({ token, username, searchVisible }) {
                     </div>
 
                     {/* Home page */}
-                    <div className='w-full border-b h-[40rem] text-sm p-0 overflow-y-scroll'>
-                        <table className='border table-fixed w-full'>
-                            <thead>
-                                <tr className='border sticky h-10 -top-1 bg-white border shadow-md'>
-                                    <th className='w-1/5 sm:w-1/3 md:w-1/6 lg:w-1/5 border'>Product Image</th>
-                                    <th className='w-1/5 sm:w-1/3 md:w-1/6 lg:w-1/5 border'>Product Name</th>
-
-                                    <th className='border w-1/5 sm:w-1/3 md:w-1/6 lg:w-1/12'>Price</th>
-                                    <th className='border w-1/5 sm:hidden lg:w-1/12'>Category</th>
-                                    <th className='border w-1/6 sm:hidden md:w-1/6 lg:w-1/12'>Edit/Delete</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProduct.map((product) => (
-                                    <tr className="hover:bg-amber-100 cursor-pointer" key={product.id}>
-                                        <td>
-                                            {/* Show Image Only on Small Screens */}
-                                            <img className='w-1/4 lg:w-2/4 mx-auto' src={product.image} alt={product.title} />
-                                        </td>
-                                        <td>
-                                            {/* Product Name */}
-                                            {
-                                                edit && editingproductid === product.id ?
-                                                    (<input
-                                                        className='w-60 border-2 border-gray-400 rounded-md p-2' placeholder='Change Name'
-                                                        value={editName}
-                                                        onChange={(e) => setEditname(e.target.value)}
-                                                    />)
-                                                    :
-                                                    (<p className='text-center'>{product.title}</p>)
-                                            }
-                                        </td>
-                                        <td className='text-center md:table-cell lg:table-cell'>
-                                            {/* Price - Show on Medium and Large Screens */}
-                                            {
-                                                edit && editingproductid === product.id ?
-                                                    (<input
-                                                        className='w-20 border-2 border-gray-400 rounded-md p-2'
-                                                        type='number'
-                                                        placeholder='Edit'
-                                                        value={editPrice}
-                                                        onChange={(e) => setEditprice(e.target.value)}
-                                                    />)
-                                                    :
-                                                    <p className='font-bold'>{product.price}</p>
-                                            }
-                                        </td>
-                                        <td className='text-center lg:table-cell'>
-                                            {/* Category - Show on Large Screens */}
-                                            {
-                                                edit && editingproductid === product.id ?
-                                                    (<input
-                                                        className='w-32 border-2 border-gray-400 rounded-md p-2' placeholder='Edit'
-                                                        value={editCategory}
-                                                        onChange={(e) => setEditcategory(e.target.value)}
-                                                    />)
-                                                    :
-                                                    <p>{product.category}</p>
-                                            }
-                                        </td>
-                                        <td className='flex h-44 justify-center items-center md:table-cell lg:table-cell'>
-                                            {/* Edit/Delete Icons */}
-                                            <FaTrash
-                                                className='text-xl my-auto mx-auto hover:text-red-500 cursor-pointer'
-                                                onClick={() => deleteProduct(product.id)}
-                                            />
-                                            {edit && editingproductid === product.id ?
-                                                <FaCheck
-                                                    className='text-xl my-auto text-blue-500 hover:border-2 hover:text-blue-600 hover:border-blue-500 hover:rounded-md cursor-pointer mx-auto my-4'
-                                                    onClick={handleSave}
-                                                />
-                                                :
-                                                <FaPenToSquare
-                                                    className='text-xl my-auto hover:text-blue-500 cursor-pointer mx-auto my-4'
-                                                    onClick={() => handleEdit(product.id)}
-                                                />
-                                            }
-                                        </td>
+                    {loading ?
+                        <div className='text-xl text-amber-500 w-full ml-[40rem] xl:ml-[30rem] md:ml-[20rem] sm:ml-[10rem] lg:h-full my-auto '>
+                            <CircularProgress />
+                        </div>
+                        :
+                        <div className='2xl:w-full border-b h-[40rem] text-sm p-0 overflow-y-scroll sm:overflow-x-hidden'>
+                            <table className='border table-fixed w-full'>
+                                <thead>
+                                    <tr className='border sticky h-10 -top-1 bg-white border shadow-md'>
+                                        <th className='w-1/6 sm:w-1/3 md:w-1/6 lg:w-1/5 border'>Product Image</th>
+                                        <th className='w-1/6 sm:w-1/3 md:w-1/6 lg:w-1/5 border'>Product Name</th>
+                                        <th className='border w-1/6 sm:w-1/3 md:w-1/12 lg:w-1/12'>Price</th>
+                                        <th className='border w-1/6 sm:hidden lg:w-1/6'>Category</th>
+                                        <th className='border w-1/6 sm:hidden md:w-1/6 lg:w-1/12'>Edit/Delete</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {products !== null ?
+                                        filteredProduct.map((product, index) => (
+                                            <Fragment key={product.id}>
+                                                <tr className="hover:bg-amber-100">
+                                                    <td className='cursor-pointer' onClick={() => document.getElementById(index).showModal()}>
+                                                        <img className='w-1/4 lg:w-2/4 mx-auto' src={product.image} alt={product.title} />
+                                                        <h1 className='text-xs text-amber-500 text-center'>Click here to see details</h1>
+                                                    </td>
+                                                    <td>
+                                                        {/* Product Name */}
+                                                        {
+                                                            edit && editingproductid === product.id ?
+                                                                (<input
+                                                                    className='w-60 border-2 border-gray-400 rounded-md p-2 z-[10]' placeholder='Change Name'
+                                                                    value={editName}
+                                                                    onChange={(e) => setEditname(e.target.value)}
+                                                                />)
+                                                                :
+                                                                (<p className='text-center'>{product.title}</p>)
+                                                        }
+                                                    </td>
+                                                    <td className='text-center md:table-cell lg:table-cell'>
+                                                        {
+                                                            edit && editingproductid === product.id ?
+                                                                (<input
+                                                                    className='w-20 border-2 border-gray-400 rounded-md p-2'
+                                                                    type='number'
+                                                                    placeholder='Edit'
+                                                                    value={editPrice}
+                                                                    onChange={(e) => setEditprice(e.target.value)}
+                                                                />)
+                                                                :
+                                                                <p className='font-bold'>{product.price}</p>
+                                                        }
+                                                    </td>
+                                                    <td className='text-center lg:table-cell'>
+                                                        {
+                                                            edit && editingproductid === product.id ?
+                                                                (<input
+                                                                    className='w-32 border-2 border-gray-400 rounded-md p-2' placeholder='Edit'
+                                                                    value={editCategory}
+                                                                    onChange={(e) => setEditcategory(e.target.value)}
+                                                                />)
+                                                                :
+                                                                <p>{product.category}</p>
+                                                        }
+                                                    </td>
+                                                    <td className='flex h-32 justify-center gap-4 items-center md:table-cell lg:table-cell'>
+                                                        {/* Edit/Delete Icons */}
+                                                        <FaTrash
+                                                            className='text-xl lg:mx-auto hover:text-red-500 cursor-pointer'
+                                                            onClick={() => deleteProduct(product.id)}
+                                                        />
+                                                        {edit && editingproductid === product.id ?
+                                                            <FaCheck
+                                                                className='text-xl text-blue-500 hover:border-2 hover:text-blue-600 hover:border-blue-500 hover:rounded-md cursor-pointer lg:mx-auto lg:mt-4'
+                                                                onClick={handleSave}
+                                                            />
+                                                            :
+                                                            <FaPenToSquare
+                                                                className='text-xl my-auto hover:text-blue-500 cursor-pointer lg:mx-auto lg:mt-4'
+                                                                onClick={() => handleEdit(product.id)}
+                                                            />
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </Fragment>
+                                        ))
+                                        :
+                                        <Box sx={{ width: '100%', marginX: 'auto' }}>
+                                            <CircularProgress sx={{ height: '1000px' }} />
+                                        </Box>
+                                    }
+                                </tbody>
+                            </table>
+                            {filteredProduct.map((product, index) => (
+
+                                <dialog id={index} key={index} className="modal modal-middle sm:modal-bottom border border-amber-500">
+                                    <div className="modal-box">
+                                        <h1 className="font-bold text-lg text-center mb-2">Product Details</h1>
+                                        <h3 className="font-bold">Product Name</h3>
+                                        <h3>{product.title}</h3>
+                                        <hr className='my-3' />
+                                        <h3 className="font-bold">Product Description</h3>
+                                        <h3 className='text-justify'>{product.description}</h3>
+                                        <hr className='my-3' />
+                                        {
+                                            product.rating.rate > 2.5 ?
+                                                <h3 className='text-lime-600 font-bold'><span className='text-black'>Rating:</span> {product.rating.rate}</h3>
+                                                :
+                                                <h3 className='text-rose-600 font-bold'><span className='text-black'>Rating:</span> {product.rating.rate}</h3>
+                                        }
+                                        <h3><span className='font-bold'>Price:</span> {product.price}</h3>
+                                        <div className="modal-action">
+                                            <form method="dialog">
+                                                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </dialog>
+                            ))}
+                        </div>}
 
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

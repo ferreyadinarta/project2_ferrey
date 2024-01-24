@@ -2,7 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import { useState } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 
@@ -12,7 +11,6 @@ export default function Login() {
     const [error, setError] = useState('')
     const [inputuser, setInputuser] = useState('')
     const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
 
     // fetch token jika user terdaftar, dan melakukan navigasi ke home
     const handleLogin = async () => {
@@ -29,8 +27,7 @@ export default function Login() {
                     password
                 }
             })
-            navigate('/Dashboard')
-            window.location.reload()
+            window.location.href='/Dashboard'
             setLoading(false)
             localStorage.setItem('accesskey', res.data.token)
             localStorage.setItem('username', inputuser)
